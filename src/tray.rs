@@ -5,15 +5,17 @@ use std::mem::size_of;
 use std::os::windows::ffi::OsStrExt;
 use std::ptr;
 use windows_sys::Win32::Foundation::{HWND, POINT};
+use windows_sys::Win32::System::LibraryLoader::GetModuleHandleW;
 use windows_sys::Win32::UI::Shell::{
     Shell_NotifyIconW, NIF_ICON, NIF_MESSAGE, NIF_TIP, NIM_ADD, NIM_DELETE, NIM_MODIFY,
     NOTIFYICONDATAW,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
-    AppendMenuW, CheckMenuItem, CreatePopupMenu, DestroyMenu, GetCursorPos, LoadIconW,
-    PostMessageW, SetForegroundWindow, SetMenuDefaultItem, TrackPopupMenuEx, HMENU,
-    IDI_APPLICATION, MF_CHECKED, MF_SEPARATOR, MF_STRING, MF_UNCHECKED, TPM_BOTTOMALIGN,
-    TPM_RIGHTALIGN, WM_APP, WM_NULL,
+    AppendMenuW, CheckMenuItem, CreatePopupMenu, DestroyMenu, GetCursorPos, GetSystemMetrics,
+    LoadIconW, LoadImageW, PostMessageW, SetForegroundWindow, SetMenuDefaultItem, TrackPopupMenuEx,
+    HICON, HMENU, IDI_APPLICATION, IMAGE_ICON, LR_DEFAULTCOLOR, MF_CHECKED, MF_SEPARATOR,
+    MF_STRING, MF_UNCHECKED, SM_CXSMICON, SM_CYSMICON, TPM_BOTTOMALIGN, TPM_RIGHTALIGN, WM_APP,
+    WM_NULL,
 };
 
 pub const WM_APP_TRAY_MSG: u32 = WM_APP + 1;
@@ -29,6 +31,32 @@ fn to_wide(s: &str) -> Vec<u16> {
     OsStr::new(s).encode_wide().chain(once(0)).collect()
 }
 
+pub fn load_app_icon(small: bool) -> HICON {
+    unsafe {
+        let h_instance = GetModuleHandleW(ptr::null());
+        if small {
+            let cx = GetSystemMetrics(SM_CXSMICON);
+            let cy = GetSystemMetrics(SM_CYSMICON);
+            let icon = LoadImageW(
+                h_instance,
+                1 as *const u16,
+                IMAGE_ICON,
+                cx,
+                cy,
+                LR_DEFAULTCOLOR,
+            ) as HICON;
+            if !icon.is_null() {
+                return icon;
+            }
+        }
+        let icon = LoadIconW(h_instance, 1 as *const u16);
+        if !icon.is_null() {
+            return icon;
+        }
+        LoadIconW(0 as _, IDI_APPLICATION)
+    }
+}
+
 pub fn create_notify_icon_data(hwnd: HWND, cfg: &AppConfig) -> NOTIFYICONDATAW {
     let mut nid: NOTIFYICONDATAW = unsafe { std::mem::zeroed() };
     nid.cbSize = size_of::<NOTIFYICONDATAW>() as u32;
@@ -36,7 +64,7 @@ pub fn create_notify_icon_data(hwnd: HWND, cfg: &AppConfig) -> NOTIFYICONDATAW {
     nid.uID = 1;
     nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
     nid.uCallbackMessage = WM_APP_TRAY_MSG;
-    nid.hIcon = unsafe { LoadIconW(0 as _, IDI_APPLICATION) };
+    nid.hIcon = load_app_icon(true);
 
     let tip = format!("Recenter Mouse ({})", cfg.hotkey_display());
     let tip_wide = to_wide(&tip);

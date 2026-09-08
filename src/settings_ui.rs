@@ -115,12 +115,12 @@ pub fn show_settings_window(parent_notify_hwnd: HWND) {
         cbClsExtra: 0,
         cbWndExtra: 0,
         hInstance: 0 as _,
-        hIcon: 0 as _,
+        hIcon: crate::tray::load_app_icon(false),
         hCursor: 0 as _,
         hbrBackground: (COLOR_BTNFACE + 1) as _,
         lpszMenuName: ptr::null(),
         lpszClassName: class_name.as_ptr(),
-        hIconSm: 0 as _,
+        hIconSm: crate::tray::load_app_icon(true),
     };
 
     unsafe {

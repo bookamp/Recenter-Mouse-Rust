@@ -22,6 +22,7 @@ features = [
     "Win32_UI_Controls",
     "Win32_UI_HiDpi",
     "Win32_Security",
+    "Win32_System_LibraryLoader",
 ]
 
 [profile.release]
@@ -30,3 +31,6 @@ lto = true             # Enable link-time optimization
 codegen-units = 1      # Maximize optimizations
 panic = "abort"        # Strip stack unwinding code
 strip = true           # Strip symbols
+
+[build-dependencies]
+winresource = "0.1.31"

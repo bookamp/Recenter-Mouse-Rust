@@ -211,12 +211,12 @@ fn main() {
         cbClsExtra: 0,
         cbWndExtra: 0,
         hInstance: 0 as _,
-        hIcon: 0 as _,
+        hIcon: tray::load_app_icon(false),
         hCursor: 0 as _,
         hbrBackground: 0 as _,
         lpszMenuName: ptr::null(),
         lpszClassName: class_name.as_ptr(),
-        hIconSm: 0 as _,
+        hIconSm: tray::load_app_icon(true),
     };
 
     unsafe {
