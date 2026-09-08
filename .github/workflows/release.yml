@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for release (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Publish Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install WiX Toolset
+        shell: pwsh
+        run: |
+          dotnet tool install --global wix --version 4.0.5
+          wix extension add WixToolset.UI.wixext/4.0.5
+
+      - name: Run Tests
+        run: cargo test --release
+
+      - name: Build and Package (Portable ZIP & MSI)
+        shell: pwsh
+        run: |
+          $tag = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ github.event.inputs.tag_name }}" } else { "${{ github.ref_name }}" }
+          if ($tag -match '^v?([0-9]+\.[0-9]+\.[0-9]+.*)$') {
+            $ver = $matches[1]
+          } else {
+            $ver = "1.0.0"
+          }
+          Write-Host "Packaging version $ver"
+          .\scripts\package.ps1 -Version $ver
+
+      - name: Generate SHA256 Checksums
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path "target/release" -Include "*.zip", "*.msi" -Recurse
+          $checksumFile = "target/release/SHA256SUMS.txt"
+          if (Test-Path $checksumFile) { Remove-Item $checksumFile -Force }
+          foreach ($file in $files) {
+            $hash = (Get-FileHash -Path $file.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($file.Name)" | Out-File -FilePath $checksumFile -Append -Encoding ascii
+          }
+          Get-Content $checksumFile
+
+      - name: Determine Release Tag
+        id: release_info
+        shell: pwsh
+        run: |
+          $tag = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ github.event.inputs.tag_name }}" } else { "${{ github.ref_name }}" }
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_info.outputs.tag }}
+          name: Recenter Mouse ${{ steps.release_info.outputs.tag }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          files: |
+            target/release/*.zip
+            target/release/*.msi
+            target/release/SHA256SUMS.txt

@@ -38,6 +38,24 @@ Rewrite of the original Python/Conda [bookamp/Recenter-Mouse](https://github.com
 
 ---
 
+## 📦 Installation & Download
+
+Pre-built binaries are available on the [Releases](https://github.com/bookamp/Recenter-Mouse-Rust/releases) page:
+
+1. **Windows Installer (`.msi`)**:
+   - Standard Windows setup wizard.
+   - Installs to `Program Files\Recenter Mouse`.
+   - Adds Start Menu shortcuts with embedded high-resolution icon.
+   - Clean uninstallation via Windows *Installed Apps / Add or Remove Programs*.
+   - Supports silent installation (`msiexec /i recenter-mouse-v1.0.0-x64.msi /qn`).
+
+2. **Portable Version (`.zip`)**:
+   - Zero installation required.
+   - Extract anywhere (e.g. `C:\Tools\RecenterMouse`) and double-click `recenter-mouse.exe`.
+   - Settings persist automatically in `%APPDATA%\RecenterMouse\config.json`.
+
+---
+
 ## ⌨️ Default Shortcut
 
 Press: **`Ctrl + Alt + C`**
