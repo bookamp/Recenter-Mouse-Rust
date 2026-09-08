@@ -1,0 +1,32 @@
+[package]
+name = "recenter-mouse"
+version = "1.0.0"
+edition = "2021"
+authors = ["bookamp"]
+description = "Lightweight, high-performance Windows utility to recenter mouse and active window to the primary display."
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dependencies.windows-sys]
+version = "0.59"
+features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Graphics_Gdi",
+    "Win32_System_Threading",
+    "Win32_UI_Shell",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_System_Registry",
+    "Win32_UI_Controls",
+    "Win32_UI_HiDpi",
+    "Win32_Security",
+]
+
+[profile.release]
+opt-level = "z"        # Optimize for size and low memory
+lto = true             # Enable link-time optimization
+codegen-units = 1      # Maximize optimizations
+panic = "abort"        # Strip stack unwinding code
+strip = true           # Strip symbols
