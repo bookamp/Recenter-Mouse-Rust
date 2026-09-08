@@ -1,21 +1,21 @@
-# Recenter Mouse (Rust)
+# Recenter Mouse
 
 A blazing-fast, ultra-lightweight Windows utility that instantly recenters your mouse cursor (and active window) to the primary display. Perfect for multi-monitor setups when your cursor is lost or active windows need to be snapped back.
 
-Rewrite of the original Python/Conda [bookamp/Recenter-Mouse](https://github.com/bookamp/Recenter-Mouse), optimized for zero background CPU usage, minimal memory footprint, and native Windows integration.
+Engineered in pure Rust for near-zero resource utilization (< 2 MB RAM, 0.0% idle CPU) and seamless native Windows integration.
 
 ---
 
-## ⚡ Performance Comparison
+## ⚡ Performance & Specifications
 
-| Metric | Original (Python / Conda) | **Rust Native Rewrite** | Improvement |
-| :--- | :--- | :--- | :--- |
-| **Idle Memory (RAM)** | ~60 MB – 150 MB+ | **~1 MB – 3 MB** | **~98% reduction** |
-| **Idle CPU Usage** | Periodic hooks/polling | **0.0%** (Win32 event-driven) | Zero CPU impact |
-| **Executable Size** | Hundreds of MBs (Python + packages) | **~312 KB** (single `.exe`) | **> 99% smaller** |
-| **External Dependencies** | Python 3.11, Conda, PyAutoGUI, PyWin32, Pynput | **None** (pure native Win32 API) | Self-contained |
-| **Startup Time** | 2 – 5 seconds (conda & scripts) | **< 5 milliseconds** | Instantaneous |
-| **Process Management** | Batch + WMIC loop + PowerShell | **Windows Mutex** (atomic single instance) | Clean & reliable |
+| Metric | Specification |
+| :--- | :--- |
+| **Idle Memory (RAM)** | **~1 MB – 3 MB** |
+| **Idle CPU Usage** | **0.0%** (Event-driven Win32 message loop) |
+| **Executable Size** | **~312 KB** (Single self-contained `.exe`) |
+| **External Dependencies** | **None** (Pure native Win32 API) |
+| **Startup Time** | **< 5 milliseconds** (Instantaneous) |
+| **Process Management** | **Windows Mutex** (Atomic single-instance) |
 
 ---
 
