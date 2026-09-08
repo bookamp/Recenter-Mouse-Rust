@@ -6,8 +6,6 @@ fn main() {
         res.set("ProductName", "Recenter Mouse");
         res.set("FileDescription", "Recenter Mouse Cursor and Window Utility");
         res.set("LegalCopyright", "Copyright (C) 2026");
-        if let Err(e) = res.compile() {
-            eprintln!("cargo:warning=Failed to compile Windows resource: {}", e);
-        }
+        res.compile().expect("Failed to compile Windows resource");
     }
 }
